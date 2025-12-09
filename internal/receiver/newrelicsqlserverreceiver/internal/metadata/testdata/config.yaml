@@ -1,0 +1,873 @@
+default:
+all_set:
+  metrics:
+    activeConnections:
+      enabled: true
+    instance.backgroundProcessesCount:
+      enabled: true
+    instance.blockedProcessesCount:
+      enabled: true
+    instance.diskInBytes:
+      enabled: true
+    instance.dormantProcessesCount:
+      enabled: true
+    instance.preconnectProcessesCount:
+      enabled: true
+    instance.runnableProcessesCount:
+      enabled: true
+    instance.runnableTasks:
+      enabled: true
+    instance.runningProcessesCount:
+      enabled: true
+    instance.sleepingProcessesCount:
+      enabled: true
+    instance.suspendedProcessesCount:
+      enabled: true
+    sqlserver.access.page_splits_per_sec:
+      enabled: true
+    sqlserver.activequery.cpu_time_ms:
+      enabled: true
+    sqlserver.activequery.elapsed_time_ms:
+      enabled: true
+    sqlserver.activequery.granted_query_memory_pages:
+      enabled: true
+    sqlserver.activequery.logical_reads:
+      enabled: true
+    sqlserver.activequery.reads:
+      enabled: true
+    sqlserver.activequery.row_count:
+      enabled: true
+    sqlserver.activequery.wait_time_seconds:
+      enabled: true
+    sqlserver.activequery.writes:
+      enabled: true
+    sqlserver.buffer.cache_hit_ratio:
+      enabled: true
+    sqlserver.buffer.checkpoint_pages_per_sec:
+      enabled: true
+    sqlserver.buffer.page_life_expectancy:
+      enabled: true
+    sqlserver.bufferPoolHitPercent:
+      enabled: true
+    sqlserver.bufferpool.batch_requests_per_sec:
+      enabled: true
+    sqlserver.bufferpool.page_life_expectancy_ms:
+      enabled: true
+    sqlserver.connections.user:
+      enabled: true
+    sqlserver.database.bufferpool.sizePerDatabaseInBytes:
+      enabled: true
+    sqlserver.database.io.stallInMilliseconds:
+      enabled: true
+    sqlserver.database.log.bytesFlushesPerSec:
+      enabled: true
+    sqlserver.database.log.flushWaitsPerSec:
+      enabled: true
+    sqlserver.database.log.flushesPerSec:
+      enabled: true
+    sqlserver.database.log.transactionGrowth:
+      enabled: true
+    sqlserver.database.log.usedSpaceMB:
+      enabled: true
+    sqlserver.database.maxDiskSizeInBytes:
+      enabled: true
+    sqlserver.database.pageFileAvailable:
+      enabled: true
+    sqlserver.database.pageFileTotal:
+      enabled: true
+    sqlserver.database.principal.createDate:
+      enabled: true
+    sqlserver.database.principals.applicationRoles:
+      enabled: true
+    sqlserver.database.principals.old:
+      enabled: true
+    sqlserver.database.principals.orphanedUsers:
+      enabled: true
+    sqlserver.database.principals.recentlyCreated:
+      enabled: true
+    sqlserver.database.principals.roles:
+      enabled: true
+    sqlserver.database.principals.sqlUsers:
+      enabled: true
+    sqlserver.database.principals.total:
+      enabled: true
+    sqlserver.database.principals.users:
+      enabled: true
+    sqlserver.database.principals.windowsUsers:
+      enabled: true
+    sqlserver.database.role.members.applicationRoles:
+      enabled: true
+    sqlserver.database.role.members.crossRole:
+      enabled: true
+    sqlserver.database.role.members.highPrivilege:
+      enabled: true
+    sqlserver.database.role.members.unique:
+      enabled: true
+    sqlserver.database.role.membership.active:
+      enabled: true
+    sqlserver.database.role.memberships.active:
+      enabled: true
+    sqlserver.database.role.memberships.custom:
+      enabled: true
+    sqlserver.database.role.memberships.nested:
+      enabled: true
+    sqlserver.database.role.memberships.total:
+      enabled: true
+    sqlserver.database.role.memberships.users:
+      enabled: true
+    sqlserver.database.role.nesting.level:
+      enabled: true
+    sqlserver.database.role.permission.memberCount:
+      enabled: true
+    sqlserver.database.role.permission.riskLevel:
+      enabled: true
+    sqlserver.database.role.permissions.inherited:
+      enabled: true
+    sqlserver.database.role.roles.empty:
+      enabled: true
+    sqlserver.database.role.roles.withMembers:
+      enabled: true
+    sqlserver.database.size.dataSizeMB:
+      enabled: true
+    sqlserver.database.size.totalSizeMB:
+      enabled: true
+    sqlserver.database.transactions.active:
+      enabled: true
+    sqlserver.failover_cluster.ag_cluster_type:
+      enabled: true
+    sqlserver.failover_cluster.ag_failure_condition_level:
+      enabled: true
+    sqlserver.failover_cluster.ag_health_check_timeout:
+      enabled: true
+    sqlserver.failover_cluster.ag_replica_role:
+      enabled: true
+    sqlserver.failover_cluster.ag_synchronization_health:
+      enabled: true
+    sqlserver.failover_cluster.flow_control_time_ms:
+      enabled: true
+    sqlserver.failover_cluster.log_bytes_received_per_sec:
+      enabled: true
+    sqlserver.failover_cluster.log_send_queue_kb:
+      enabled: true
+    sqlserver.failover_cluster.redo_queue_kb:
+      enabled: true
+    sqlserver.failover_cluster.redo_rate_kb_sec:
+      enabled: true
+    sqlserver.failover_cluster.transaction_delay_ms:
+      enabled: true
+    sqlserver.individual_query.total_cpu_ms:
+      enabled: true
+    sqlserver.individual_query.total_elapsed_ms:
+      enabled: true
+    sqlserver.instance.buffer_pool_size:
+      enabled: true
+    sqlserver.instance.compilations_per_batch:
+      enabled: true
+    sqlserver.instance.forced_parameterizations_per_sec:
+      enabled: true
+    sqlserver.instance.full_scans_rate:
+      enabled: true
+    sqlserver.instance.lock_timeouts_rate:
+      enabled: true
+    sqlserver.instance.memoryAvailable:
+      enabled: true
+    sqlserver.instance.memoryTotal:
+      enabled: true
+    sqlserver.instance.memoryUtilization:
+      enabled: true
+    sqlserver.instance.page_splits_per_batch:
+      enabled: true
+    sqlserver.instance.target_memory_kb:
+      enabled: true
+    sqlserver.instance.transactions_per_sec:
+      enabled: true
+    sqlserver.lock.mode.bulk_update:
+      enabled: true
+    sqlserver.lock.mode.exclusive:
+      enabled: true
+    sqlserver.lock.mode.intent:
+      enabled: true
+    sqlserver.lock.mode.schema:
+      enabled: true
+    sqlserver.lock.mode.shared:
+      enabled: true
+    sqlserver.lock.mode.shared_intent_exclusive:
+      enabled: true
+    sqlserver.lock.mode.total:
+      enabled: true
+    sqlserver.lock.mode.update:
+      enabled: true
+    sqlserver.lock.resource.allocation_unit:
+      enabled: true
+    sqlserver.lock.resource.application:
+      enabled: true
+    sqlserver.lock.resource.database_level:
+      enabled: true
+    sqlserver.lock.resource.extent:
+      enabled: true
+    sqlserver.lock.resource.file:
+      enabled: true
+    sqlserver.lock.resource.hobt:
+      enabled: true
+    sqlserver.lock.resource.key:
+      enabled: true
+    sqlserver.lock.resource.metadata:
+      enabled: true
+    sqlserver.lock.resource.page:
+      enabled: true
+    sqlserver.lock.resource.row:
+      enabled: true
+    sqlserver.lock.resource.table:
+      enabled: true
+    sqlserver.lock.resource.total:
+      enabled: true
+    sqlserver.locked_object:
+      enabled: true
+    sqlserver.memory.target:
+      enabled: true
+    sqlserver.memory.total:
+      enabled: true
+    sqlserver.plan.avg_elapsed_time_ms:
+      enabled: true
+    sqlserver.plan.avg_logical_reads:
+      enabled: true
+    sqlserver.plan.avg_logical_writes:
+      enabled: true
+    sqlserver.plan.avg_worker_time_ms:
+      enabled: true
+    sqlserver.plan.execution_count:
+      enabled: true
+    sqlserver.plan.last_dop:
+      enabled: true
+    sqlserver.plan.last_grant_kb:
+      enabled: true
+    sqlserver.plan.last_spills:
+      enabled: true
+    sqlserver.plan.max_elapsed_time_ms:
+      enabled: true
+    sqlserver.plan.min_elapsed_time_ms:
+      enabled: true
+    sqlserver.plan.total_elapsed_time_ms:
+      enabled: true
+    sqlserver.security.server_principals_count:
+      enabled: true
+    sqlserver.security.server_role_members_count:
+      enabled: true
+    sqlserver.slowquery.avg_disk_reads:
+      enabled: true
+    sqlserver.slowquery.avg_disk_writes:
+      enabled: true
+    sqlserver.slowquery.avg_rows_processed:
+      enabled: true
+    sqlserver.slowquery.historical_avg_cpu_time_ms:
+      enabled: true
+    sqlserver.slowquery.historical_avg_elapsed_time_ms:
+      enabled: true
+    sqlserver.slowquery.historical_execution_count:
+      enabled: true
+    sqlserver.slowquery.interval_avg_elapsed_time_ms:
+      enabled: true
+    sqlserver.slowquery.interval_execution_count:
+      enabled: true
+    sqlserver.slowquery.last_dop:
+      enabled: true
+    sqlserver.slowquery.last_elapsed_time_ms:
+      enabled: true
+    sqlserver.slowquery.last_grant_kb:
+      enabled: true
+    sqlserver.slowquery.last_spills:
+      enabled: true
+    sqlserver.slowquery.last_used_grant_kb:
+      enabled: true
+    sqlserver.slowquery.max_elapsed_time_ms:
+      enabled: true
+    sqlserver.slowquery.max_spills:
+      enabled: true
+    sqlserver.slowquery.min_elapsed_time_ms:
+      enabled: true
+    sqlserver.slowquery.query_text:
+      enabled: true
+    sqlserver.stats.connections:
+      enabled: true
+    sqlserver.stats.deadlocks_per_sec:
+      enabled: true
+    sqlserver.stats.kill_connection_errors_per_sec:
+      enabled: true
+    sqlserver.stats.lock_waits_per_sec:
+      enabled: true
+    sqlserver.stats.sql_compilations_per_sec:
+      enabled: true
+    sqlserver.stats.sql_recompilations_per_sec:
+      enabled: true
+    sqlserver.stats.user_errors_per_sec:
+      enabled: true
+    sqlserver.tempdb.allocation_waits_ms:
+      enabled: true
+    sqlserver.tempdb.current_waiters:
+      enabled: true
+    sqlserver.tempdb.data_file_count:
+      enabled: true
+    sqlserver.tempdb.pagelatch_waits_ms:
+      enabled: true
+    sqlserver.tempdb.total_size_mb:
+      enabled: true
+    sqlserver.threadpool.current_tasks:
+      enabled: true
+    sqlserver.threadpool.max_workers:
+      enabled: true
+    sqlserver.threadpool.runnable_tasks:
+      enabled: true
+    sqlserver.threadpool.running_workers:
+      enabled: true
+    sqlserver.threadpool.utilization_percent:
+      enabled: true
+    sqlserver.threadpool.waiting_tasks:
+      enabled: true
+    sqlserver.threadpool.work_queue_count:
+      enabled: true
+    sqlserver.user_connections.authentication.churn_rate:
+      enabled: true
+    sqlserver.user_connections.authentication.failed_login_events:
+      enabled: true
+    sqlserver.user_connections.authentication.logins_per_sec:
+      enabled: true
+    sqlserver.user_connections.authentication.logouts_per_sec:
+      enabled: true
+    sqlserver.user_connections.authentication.rate:
+      enabled: true
+    sqlserver.user_connections.authentication.recent_failed_logins:
+      enabled: true
+    sqlserver.user_connections.authentication.total_activity:
+      enabled: true
+    sqlserver.user_connections.authentication.total_failed_logins:
+      enabled: true
+    sqlserver.user_connections.authentication.unique_failed_sources:
+      enabled: true
+    sqlserver.user_connections.authentication.unique_failed_users:
+      enabled: true
+    sqlserver.user_connections.client.count:
+      enabled: true
+    sqlserver.user_connections.client.hosts_multi_program:
+      enabled: true
+    sqlserver.user_connections.client.programs_multi_host:
+      enabled: true
+    sqlserver.user_connections.client.top_host_connections:
+      enabled: true
+    sqlserver.user_connections.client.top_program_connections:
+      enabled: true
+    sqlserver.user_connections.client.unique_hosts:
+      enabled: true
+    sqlserver.user_connections.client.unique_programs:
+      enabled: true
+    sqlserver.user_connections.dormant:
+      enabled: true
+    sqlserver.user_connections.runnable:
+      enabled: true
+    sqlserver.user_connections.running:
+      enabled: true
+    sqlserver.user_connections.sleeping:
+      enabled: true
+    sqlserver.user_connections.status.count:
+      enabled: true
+    sqlserver.user_connections.suspended:
+      enabled: true
+    sqlserver.user_connections.total:
+      enabled: true
+    sqlserver.user_connections.utilization.active_ratio:
+      enabled: true
+    sqlserver.user_connections.utilization.efficiency:
+      enabled: true
+    sqlserver.user_connections.utilization.idle_ratio:
+      enabled: true
+    sqlserver.user_connections.utilization.waiting_ratio:
+      enabled: true
+    sqlserver.wait_stats.latch.wait_time_ms:
+      enabled: true
+    sqlserver.wait_stats.latch.waiting_tasks_count:
+      enabled: true
+    sqlserver.wait_stats.wait_time_ms:
+      enabled: true
+    sqlserver.wait_stats.waiting_tasks_count:
+      enabled: true
+  events:
+    sqlserver.active_query_execution_plan:
+      enabled: true
+  resource_attributes:
+    database_name:
+      enabled: true
+    db.system:
+      enabled: true
+    engine_edition:
+      enabled: true
+    server.address:
+      enabled: true
+    server.port:
+      enabled: true
+none_set:
+  metrics:
+    activeConnections:
+      enabled: false
+    instance.backgroundProcessesCount:
+      enabled: false
+    instance.blockedProcessesCount:
+      enabled: false
+    instance.diskInBytes:
+      enabled: false
+    instance.dormantProcessesCount:
+      enabled: false
+    instance.preconnectProcessesCount:
+      enabled: false
+    instance.runnableProcessesCount:
+      enabled: false
+    instance.runnableTasks:
+      enabled: false
+    instance.runningProcessesCount:
+      enabled: false
+    instance.sleepingProcessesCount:
+      enabled: false
+    instance.suspendedProcessesCount:
+      enabled: false
+    sqlserver.access.page_splits_per_sec:
+      enabled: false
+    sqlserver.activequery.cpu_time_ms:
+      enabled: false
+    sqlserver.activequery.elapsed_time_ms:
+      enabled: false
+    sqlserver.activequery.granted_query_memory_pages:
+      enabled: false
+    sqlserver.activequery.logical_reads:
+      enabled: false
+    sqlserver.activequery.reads:
+      enabled: false
+    sqlserver.activequery.row_count:
+      enabled: false
+    sqlserver.activequery.wait_time_seconds:
+      enabled: false
+    sqlserver.activequery.writes:
+      enabled: false
+    sqlserver.buffer.cache_hit_ratio:
+      enabled: false
+    sqlserver.buffer.checkpoint_pages_per_sec:
+      enabled: false
+    sqlserver.buffer.page_life_expectancy:
+      enabled: false
+    sqlserver.bufferPoolHitPercent:
+      enabled: false
+    sqlserver.bufferpool.batch_requests_per_sec:
+      enabled: false
+    sqlserver.bufferpool.page_life_expectancy_ms:
+      enabled: false
+    sqlserver.connections.user:
+      enabled: false
+    sqlserver.database.bufferpool.sizePerDatabaseInBytes:
+      enabled: false
+    sqlserver.database.io.stallInMilliseconds:
+      enabled: false
+    sqlserver.database.log.bytesFlushesPerSec:
+      enabled: false
+    sqlserver.database.log.flushWaitsPerSec:
+      enabled: false
+    sqlserver.database.log.flushesPerSec:
+      enabled: false
+    sqlserver.database.log.transactionGrowth:
+      enabled: false
+    sqlserver.database.log.usedSpaceMB:
+      enabled: false
+    sqlserver.database.maxDiskSizeInBytes:
+      enabled: false
+    sqlserver.database.pageFileAvailable:
+      enabled: false
+    sqlserver.database.pageFileTotal:
+      enabled: false
+    sqlserver.database.principal.createDate:
+      enabled: false
+    sqlserver.database.principals.applicationRoles:
+      enabled: false
+    sqlserver.database.principals.old:
+      enabled: false
+    sqlserver.database.principals.orphanedUsers:
+      enabled: false
+    sqlserver.database.principals.recentlyCreated:
+      enabled: false
+    sqlserver.database.principals.roles:
+      enabled: false
+    sqlserver.database.principals.sqlUsers:
+      enabled: false
+    sqlserver.database.principals.total:
+      enabled: false
+    sqlserver.database.principals.users:
+      enabled: false
+    sqlserver.database.principals.windowsUsers:
+      enabled: false
+    sqlserver.database.role.members.applicationRoles:
+      enabled: false
+    sqlserver.database.role.members.crossRole:
+      enabled: false
+    sqlserver.database.role.members.highPrivilege:
+      enabled: false
+    sqlserver.database.role.members.unique:
+      enabled: false
+    sqlserver.database.role.membership.active:
+      enabled: false
+    sqlserver.database.role.memberships.active:
+      enabled: false
+    sqlserver.database.role.memberships.custom:
+      enabled: false
+    sqlserver.database.role.memberships.nested:
+      enabled: false
+    sqlserver.database.role.memberships.total:
+      enabled: false
+    sqlserver.database.role.memberships.users:
+      enabled: false
+    sqlserver.database.role.nesting.level:
+      enabled: false
+    sqlserver.database.role.permission.memberCount:
+      enabled: false
+    sqlserver.database.role.permission.riskLevel:
+      enabled: false
+    sqlserver.database.role.permissions.inherited:
+      enabled: false
+    sqlserver.database.role.roles.empty:
+      enabled: false
+    sqlserver.database.role.roles.withMembers:
+      enabled: false
+    sqlserver.database.size.dataSizeMB:
+      enabled: false
+    sqlserver.database.size.totalSizeMB:
+      enabled: false
+    sqlserver.database.transactions.active:
+      enabled: false
+    sqlserver.failover_cluster.ag_cluster_type:
+      enabled: false
+    sqlserver.failover_cluster.ag_failure_condition_level:
+      enabled: false
+    sqlserver.failover_cluster.ag_health_check_timeout:
+      enabled: false
+    sqlserver.failover_cluster.ag_replica_role:
+      enabled: false
+    sqlserver.failover_cluster.ag_synchronization_health:
+      enabled: false
+    sqlserver.failover_cluster.flow_control_time_ms:
+      enabled: false
+    sqlserver.failover_cluster.log_bytes_received_per_sec:
+      enabled: false
+    sqlserver.failover_cluster.log_send_queue_kb:
+      enabled: false
+    sqlserver.failover_cluster.redo_queue_kb:
+      enabled: false
+    sqlserver.failover_cluster.redo_rate_kb_sec:
+      enabled: false
+    sqlserver.failover_cluster.transaction_delay_ms:
+      enabled: false
+    sqlserver.individual_query.total_cpu_ms:
+      enabled: false
+    sqlserver.individual_query.total_elapsed_ms:
+      enabled: false
+    sqlserver.instance.buffer_pool_size:
+      enabled: false
+    sqlserver.instance.compilations_per_batch:
+      enabled: false
+    sqlserver.instance.forced_parameterizations_per_sec:
+      enabled: false
+    sqlserver.instance.full_scans_rate:
+      enabled: false
+    sqlserver.instance.lock_timeouts_rate:
+      enabled: false
+    sqlserver.instance.memoryAvailable:
+      enabled: false
+    sqlserver.instance.memoryTotal:
+      enabled: false
+    sqlserver.instance.memoryUtilization:
+      enabled: false
+    sqlserver.instance.page_splits_per_batch:
+      enabled: false
+    sqlserver.instance.target_memory_kb:
+      enabled: false
+    sqlserver.instance.transactions_per_sec:
+      enabled: false
+    sqlserver.lock.mode.bulk_update:
+      enabled: false
+    sqlserver.lock.mode.exclusive:
+      enabled: false
+    sqlserver.lock.mode.intent:
+      enabled: false
+    sqlserver.lock.mode.schema:
+      enabled: false
+    sqlserver.lock.mode.shared:
+      enabled: false
+    sqlserver.lock.mode.shared_intent_exclusive:
+      enabled: false
+    sqlserver.lock.mode.total:
+      enabled: false
+    sqlserver.lock.mode.update:
+      enabled: false
+    sqlserver.lock.resource.allocation_unit:
+      enabled: false
+    sqlserver.lock.resource.application:
+      enabled: false
+    sqlserver.lock.resource.database_level:
+      enabled: false
+    sqlserver.lock.resource.extent:
+      enabled: false
+    sqlserver.lock.resource.file:
+      enabled: false
+    sqlserver.lock.resource.hobt:
+      enabled: false
+    sqlserver.lock.resource.key:
+      enabled: false
+    sqlserver.lock.resource.metadata:
+      enabled: false
+    sqlserver.lock.resource.page:
+      enabled: false
+    sqlserver.lock.resource.row:
+      enabled: false
+    sqlserver.lock.resource.table:
+      enabled: false
+    sqlserver.lock.resource.total:
+      enabled: false
+    sqlserver.locked_object:
+      enabled: false
+    sqlserver.memory.target:
+      enabled: false
+    sqlserver.memory.total:
+      enabled: false
+    sqlserver.plan.avg_elapsed_time_ms:
+      enabled: false
+    sqlserver.plan.avg_logical_reads:
+      enabled: false
+    sqlserver.plan.avg_logical_writes:
+      enabled: false
+    sqlserver.plan.avg_worker_time_ms:
+      enabled: false
+    sqlserver.plan.execution_count:
+      enabled: false
+    sqlserver.plan.last_dop:
+      enabled: false
+    sqlserver.plan.last_grant_kb:
+      enabled: false
+    sqlserver.plan.last_spills:
+      enabled: false
+    sqlserver.plan.max_elapsed_time_ms:
+      enabled: false
+    sqlserver.plan.min_elapsed_time_ms:
+      enabled: false
+    sqlserver.plan.total_elapsed_time_ms:
+      enabled: false
+    sqlserver.security.server_principals_count:
+      enabled: false
+    sqlserver.security.server_role_members_count:
+      enabled: false
+    sqlserver.slowquery.avg_disk_reads:
+      enabled: false
+    sqlserver.slowquery.avg_disk_writes:
+      enabled: false
+    sqlserver.slowquery.avg_rows_processed:
+      enabled: false
+    sqlserver.slowquery.historical_avg_cpu_time_ms:
+      enabled: false
+    sqlserver.slowquery.historical_avg_elapsed_time_ms:
+      enabled: false
+    sqlserver.slowquery.historical_execution_count:
+      enabled: false
+    sqlserver.slowquery.interval_avg_elapsed_time_ms:
+      enabled: false
+    sqlserver.slowquery.interval_execution_count:
+      enabled: false
+    sqlserver.slowquery.last_dop:
+      enabled: false
+    sqlserver.slowquery.last_elapsed_time_ms:
+      enabled: false
+    sqlserver.slowquery.last_grant_kb:
+      enabled: false
+    sqlserver.slowquery.last_spills:
+      enabled: false
+    sqlserver.slowquery.last_used_grant_kb:
+      enabled: false
+    sqlserver.slowquery.max_elapsed_time_ms:
+      enabled: false
+    sqlserver.slowquery.max_spills:
+      enabled: false
+    sqlserver.slowquery.min_elapsed_time_ms:
+      enabled: false
+    sqlserver.slowquery.query_text:
+      enabled: false
+    sqlserver.stats.connections:
+      enabled: false
+    sqlserver.stats.deadlocks_per_sec:
+      enabled: false
+    sqlserver.stats.kill_connection_errors_per_sec:
+      enabled: false
+    sqlserver.stats.lock_waits_per_sec:
+      enabled: false
+    sqlserver.stats.sql_compilations_per_sec:
+      enabled: false
+    sqlserver.stats.sql_recompilations_per_sec:
+      enabled: false
+    sqlserver.stats.user_errors_per_sec:
+      enabled: false
+    sqlserver.tempdb.allocation_waits_ms:
+      enabled: false
+    sqlserver.tempdb.current_waiters:
+      enabled: false
+    sqlserver.tempdb.data_file_count:
+      enabled: false
+    sqlserver.tempdb.pagelatch_waits_ms:
+      enabled: false
+    sqlserver.tempdb.total_size_mb:
+      enabled: false
+    sqlserver.threadpool.current_tasks:
+      enabled: false
+    sqlserver.threadpool.max_workers:
+      enabled: false
+    sqlserver.threadpool.runnable_tasks:
+      enabled: false
+    sqlserver.threadpool.running_workers:
+      enabled: false
+    sqlserver.threadpool.utilization_percent:
+      enabled: false
+    sqlserver.threadpool.waiting_tasks:
+      enabled: false
+    sqlserver.threadpool.work_queue_count:
+      enabled: false
+    sqlserver.user_connections.authentication.churn_rate:
+      enabled: false
+    sqlserver.user_connections.authentication.failed_login_events:
+      enabled: false
+    sqlserver.user_connections.authentication.logins_per_sec:
+      enabled: false
+    sqlserver.user_connections.authentication.logouts_per_sec:
+      enabled: false
+    sqlserver.user_connections.authentication.rate:
+      enabled: false
+    sqlserver.user_connections.authentication.recent_failed_logins:
+      enabled: false
+    sqlserver.user_connections.authentication.total_activity:
+      enabled: false
+    sqlserver.user_connections.authentication.total_failed_logins:
+      enabled: false
+    sqlserver.user_connections.authentication.unique_failed_sources:
+      enabled: false
+    sqlserver.user_connections.authentication.unique_failed_users:
+      enabled: false
+    sqlserver.user_connections.client.count:
+      enabled: false
+    sqlserver.user_connections.client.hosts_multi_program:
+      enabled: false
+    sqlserver.user_connections.client.programs_multi_host:
+      enabled: false
+    sqlserver.user_connections.client.top_host_connections:
+      enabled: false
+    sqlserver.user_connections.client.top_program_connections:
+      enabled: false
+    sqlserver.user_connections.client.unique_hosts:
+      enabled: false
+    sqlserver.user_connections.client.unique_programs:
+      enabled: false
+    sqlserver.user_connections.dormant:
+      enabled: false
+    sqlserver.user_connections.runnable:
+      enabled: false
+    sqlserver.user_connections.running:
+      enabled: false
+    sqlserver.user_connections.sleeping:
+      enabled: false
+    sqlserver.user_connections.status.count:
+      enabled: false
+    sqlserver.user_connections.suspended:
+      enabled: false
+    sqlserver.user_connections.total:
+      enabled: false
+    sqlserver.user_connections.utilization.active_ratio:
+      enabled: false
+    sqlserver.user_connections.utilization.efficiency:
+      enabled: false
+    sqlserver.user_connections.utilization.idle_ratio:
+      enabled: false
+    sqlserver.user_connections.utilization.waiting_ratio:
+      enabled: false
+    sqlserver.wait_stats.latch.wait_time_ms:
+      enabled: false
+    sqlserver.wait_stats.latch.waiting_tasks_count:
+      enabled: false
+    sqlserver.wait_stats.wait_time_ms:
+      enabled: false
+    sqlserver.wait_stats.waiting_tasks_count:
+      enabled: false
+  events:
+    sqlserver.active_query_execution_plan:
+      enabled: false
+  resource_attributes:
+    database_name:
+      enabled: false
+    db.system:
+      enabled: false
+    engine_edition:
+      enabled: false
+    server.address:
+      enabled: false
+    server.port:
+      enabled: false
+filter_set_include:
+  resource_attributes:
+    database_name:
+      enabled: true
+      metrics_include:
+        - regexp: ".*"
+      events_include:
+        - regexp: ".*"
+    db.system:
+      enabled: true
+      metrics_include:
+        - regexp: ".*"
+      events_include:
+        - regexp: ".*"
+    engine_edition:
+      enabled: true
+      metrics_include:
+        - regexp: ".*"
+      events_include:
+        - regexp: ".*"
+    server.address:
+      enabled: true
+      metrics_include:
+        - regexp: ".*"
+      events_include:
+        - regexp: ".*"
+    server.port:
+      enabled: true
+      metrics_include:
+        - regexp: ".*"
+      events_include:
+        - regexp: ".*"
+filter_set_exclude:
+  resource_attributes:
+    database_name:
+      enabled: true
+      metrics_exclude:
+        - strict: "database_name-val"
+      events_exclude:
+        - strict: "database_name-val"
+    db.system:
+      enabled: true
+      metrics_exclude:
+        - strict: "db.system-val"
+      events_exclude:
+        - strict: "db.system-val"
+    engine_edition:
+      enabled: true
+      metrics_exclude:
+        - strict: "engine_edition-val"
+      events_exclude:
+        - strict: "engine_edition-val"
+    server.address:
+      enabled: true
+      metrics_exclude:
+        - strict: "server.address-val"
+      events_exclude:
+        - strict: "server.address-val"
+    server.port:
+      enabled: true
+      metrics_exclude:
+        - strict: "server.port-val"
+      events_exclude:
+        - strict: "server.port-val"

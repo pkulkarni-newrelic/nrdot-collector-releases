@@ -1,0 +1,201 @@
+# OpenTelemetry Collector Configuration
+# Custom collector with New Relic SQL Server Receiver
+
+# Extensions provide additional functionality
+extensions:
+  # Health check endpoint
+  health_check:
+    endpoint: localhost:13134
+
+# Service configuration
+service:
+  # Enable extensions
+  extensions: [health_check]
+  
+  # Define the data pipeline
+  pipelines:
+    # Metrics pipeline: receiver -> processor -> exporter
+    metrics:
+      receivers: [newrelicsqlserver]
+      processors: [memory_limiter, batch, resource]
+      exporters: [otlphttp, debug]
+    
+    # Logs pipeline: receiver -> processor -> exporter (for execution plans)
+    logs:
+      receivers: [newrelicsqlserver]
+      processors: [memory_limiter, batch, resource]
+      exporters: [otlphttp/logs, debug]
+  
+  # Telemetry configuration for the collector itself
+  telemetry:
+    logs:
+      level: debug  # Changed from info to debug for verbose logging
+    metrics:
+      level: none
+
+# Processors transform and enrich the data
+processors:
+  # Memory limiter prevents out-of-memory issues
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 256
+    spike_limit_mib: 64
+  
+  # Batch processor groups data for efficient transmission
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  
+  # Resource processor adds metadata to all telemetry
+  resource:
+    attributes:
+      - key: deployment.environment
+        value: "production"
+        action: upsert
+      - key: service.name
+        value: "sql-server-monitoring"
+        action: upsert
+      - key: service.version
+        value: "1.0.0"
+        action: upsert
+      - key: entity.name
+        value: "sqlserver.execution_plan_operator"
+        action: upsert
+
+# Receivers collect telemetry data
+receivers:
+  # Your New Relic SQL Server Receiver
+  newrelicsqlserver:
+    # SQL Server connection configuration
+    # ⚠️  REPLACE THESE WITH YOUR ACTUAL VALUES ⚠️
+    hostname: ""                    # e.g., "your-sql-server.com" or "192.168.1.100"
+    port: "1433"                # Default SQL Server port
+    username: "sa"              # e.g., "monitoring_user"
+    password: ""              # Your SQL Server password
+
+    # Optional: Named instance (if using SQL Server named instances)
+    # instance: "${SQLSERVER_INSTANCE}"            # e.g., "SQLEXPRESS" 
+    
+    # Query execution timeout (increased for slow queries on busy systems)
+    timeout: 300s
+    
+    # Collection interval (how often to collect metrics)
+    collection_interval: 60s
+
+    # Lookback window for slow queries - should be >= collection_interval to avoid missing queries
+    query_monitoring_fetch_interval: 60       # seconds - captures queries from last 60 seconds (matches collection_interval)
+    
+    # Optional: Initial delay before starting collection
+    # initial_delay: 10s
+    
+    # Enable query performance monitoring (blocking sessions, slow queries, etc.)
+    enable_query_monitoring: true
+
+    # Enable active running queries monitoring (captures currently executing queries with waits)
+    enable_active_running_queries: true
+
+    # Query monitoring thresholds (required when enable_query_monitoring is true)
+    query_monitoring_response_time_threshold: 0  # milliseconds - 0 = capture all queries (no threshold) for debugging
+    query_monitoring_count_threshold: 100         # TopN: emit top 100 slowest queries per collection cycle
+    query_monitoring_text_truncate_limit: 4094    # characters - maximum length of SQL text in query monitoring results (4KB - 2 bytes)
+
+    # Interval-based averaging (delta calculation) - EXPLICITLY ENABLED
+    enable_interval_based_averaging: true          # Enable delta-based interval calculations
+    interval_calculator_cache_ttl_minutes: 10      # Cache TTL for query state (10 minutes)
+
+# Exporters send telemetry data to destinations
+exporters:
+  # New Relic OTLP HTTP Exporter
+  otlphttp:
+    # New Relic OTLP endpoint (HTTP uses port 4318, not 4317)
+    endpoint: "https://staging-otlp.nr-data.net:4318"
+    
+    # Headers for authentication
+    headers:
+      # ⚠️  REPLACE WITH YOUR ACTUAL NEW RELIC LICENSE KEY ⚠️
+      api-key: ""
+    
+    # TLS configuration
+    tls:
+      insecure: false
+    
+    # Retry configuration
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 30s
+      max_elapsed_time: 300s
+    
+    # Queue configuration for handling bursts
+    sending_queue:
+      enabled: true
+      num_consumers: 2
+      queue_size: 100
+    
+    # Compression (gzip is recommended)
+    compression: gzip
+    
+    # Timeout for HTTP requests
+    timeout: 30s
+  
+  # New Relic OTLP HTTP Exporter for Logs (Execution Plans)
+  otlphttp/logs:
+    # New Relic OTLP logs endpoint (HTTP uses port 4318, not 4317)
+    endpoint: "https://staging-otlp.nr-data.net:4318"
+    
+    # Headers for authentication
+    headers:
+      # ⚠️  REPLACE WITH YOUR ACTUAL NEW RELIC LICENSE KEY ⚠️
+      api-key: ""
+    
+    # TLS configuration
+    tls:
+      insecure: false
+    
+    # Retry configuration
+    retry_on_failure:
+      enabled: true
+      initial_interval: 1s
+      max_interval: 30s
+      max_elapsed_time: 300s
+    
+    # Queue configuration for handling bursts
+    sending_queue:
+      enabled: true
+      num_consumers: 2
+      queue_size: 100
+    
+    # Compression (gzip is recommended)
+    compression: gzip
+    
+    # Timeout for HTTP requests
+    timeout: 30s
+  
+  # Debug exporter for debugging (outputs to console)
+  debug:
+    verbosity: detailed
+    # Output ALL metrics and logs without sampling for troubleshooting
+    sampling_initial: 10000  # Increased to capture more initial data
+    sampling_thereafter: 10000  # Increased to see all metrics continuously
+
+# Environment Variables to Set:
+# 
+# Required:
+# export SQLSERVER_HOST="your-sql-server-hostname-or-ip"
+# export SQLSERVER_USERNAME="your-sql-username"
+# export SQLSERVER_PASSWORD="your-sql-password"
+# export NEW_RELIC_LICENSE_KEY="your-newrelic-license-key"
+#
+# Optional:
+# export SQLSERVER_PORT="1433"
+# export SQLSERVER_DATABASE="master"  
+# export SQLSERVER_INSTANCE="SQLEXPRESS"
+#
+# Example:
+# export SQLSERVER_HOST="192.168.1.100"
+# export SQLSERVER_USERNAME="monitoring_user"
+# export SQLSERVER_PASSWORD="SecurePassword123!"
+# export NEW_RELIC_LICENSE_KEY="eu01xxNRAL-your-actual-key-here"
+#
+# Then run:
+# ./bin/otelcol-newrelic --config=config.yaml

@@ -7,6 +7,38 @@ receivers:
       grpc:
       http:
 
+  # New Relic SQL Server Receiver
+  newrelicsqlserver:
+    # SQL Server connection configuration
+    hostname: ""
+    port: "1433"
+    username: "sa"
+    password: ""
+
+    # Query execution timeout (increased for slow queries on busy systems)
+    timeout: 300s
+
+    # Collection interval (how often to collect metrics)
+    collection_interval: 60s
+
+    # Lookback window for slow queries - should be >= collection_interval to avoid missing queries
+    query_monitoring_fetch_interval: 60  # seconds - captures queries from last 60 seconds (matches collection_interval)
+
+    # Enable query performance monitoring (blocking sessions, slow queries, etc.)
+    enable_query_monitoring: true
+
+    # Enable active running queries monitoring (captures currently executing queries with waits)
+    enable_active_running_queries: true
+
+    # Query monitoring thresholds (required when enable_query_monitoring is true)
+    query_monitoring_response_time_threshold: 0  # milliseconds - 0 = capture all queries (no threshold) for debugging
+    query_monitoring_count_threshold: 100  # TopN: emit top 100 slowest queries per collection cycle
+    query_monitoring_text_truncate_limit: 4094  # characters - maximum length of SQL text in query monitoring results (4KB - 2 bytes)
+
+    # Interval-based averaging (delta calculation) - EXPLICITLY ENABLED
+    enable_interval_based_averaging: true  # Enable delta-based interval calculations
+    interval_calculator_cache_ttl_minutes: 10  # Cache TTL for query state (10 minutes)
+
   hostmetrics:
     # Default collection interval is 60s. Lower if you need finer granularity.
     collection_interval: 60s
@@ -216,6 +248,15 @@ service:
         - resourcedetection/cloud
         - resourcedetection/env
         - cumulativetodelta
+        - batch
+      exporters: [otlphttp]
+    metrics/sqlserver:
+      receivers: [newrelicsqlserver]
+      processors:
+        - memory_limiter
+        - resourcedetection
+        - resourcedetection/cloud
+        - resourcedetection/env
         - batch
       exporters: [otlphttp]
     logs/host:

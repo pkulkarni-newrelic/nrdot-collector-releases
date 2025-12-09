@@ -1,0 +1,339 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
+
+package newrelicoraclereceiver // import "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver"
+
+import (
+	"errors"
+	"fmt"
+	"net"
+	"net/url"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
+
+	"go.opentelemetry.io/collector/scraper/scraperhelper"
+	"go.uber.org/multierr"
+
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/internal/metadata"
+	"github.com/open-telemetry/opentelemetry-collector-contrib/receiver/newrelicoraclereceiver/queries"
+)
+
+const (
+	// Default configuration values
+	defaultMaxOpenConnections = 5 // Standard default for Oracle connections
+	defaultCollectionInterval = 10 * time.Second
+
+	// Query Performance Monitoring defaults
+	defaultEnableQueryMonitoring                = false
+	defaultQueryMonitoringResponseTimeThreshold = queries.DefaultQueryMonitoringResponseTimeThreshold
+	defaultQueryMonitoringCountThreshold        = queries.DefaultQueryMonitoringCountThreshold
+	defaultChildCursorsPerSQLID                 = 5 // Default to 5 (optimized flow with wait events covers edge cases)
+
+	// Interval Calculator defaults
+	defaultEnableIntervalBasedAveraging      = true // Enable by default for better slow query detection
+	defaultIntervalCalculatorCacheTTLMinutes = 10   // 10 minutes cache TTL
+	// Note: QueryMonitoringIntervalSeconds default is set dynamically based on collection_interval
+	// in SetDefaults() to ensure it's always >= collection_interval
+
+	// Validation ranges
+	minCollectionInterval                   = 10 * time.Second
+	maxCollectionInterval                   = 3600 * time.Second
+	minMaxOpenConnections                   = 1
+	maxMaxOpenConnections                   = 1000
+	maxUsernameLength                       = 128
+	maxServiceLength                        = 128
+	minQueryMonitoringResponseTimeThreshold = queries.MinQueryMonitoringResponseTimeThreshold
+	minQueryMonitoringCountThreshold        = queries.MinQueryMonitoringCountThreshold
+	maxQueryMonitoringCountThreshold        = queries.MaxQueryMonitoringCountThreshold
+	minChildCursorsPerSQLID                 = 3  // Minimum child cursors to fetch per SQL_ID
+	maxChildCursorsPerSQLID                 = 20 // Maximum child cursors to fetch per SQL_ID
+)
+
+var (
+	errBadDataSource                           = errors.New("datasource is invalid")
+	errBadEndpoint                             = errors.New("endpoint must be specified as host:port")
+	errBadPort                                 = errors.New("invalid port in endpoint")
+	errEmptyEndpoint                           = errors.New("endpoint must be specified")
+	errEmptyPassword                           = errors.New("password must be set")
+	errEmptyService                            = errors.New("service must be specified")
+	errEmptyUsername                           = errors.New("username must be set")
+	errInvalidConnections                      = errors.New("max_open_connections must be between 1 and 1000")
+	errInvalidTimeout                          = errors.New("collection_interval must be between 10s and 3600s")
+	errInvalidUsername                         = errors.New("username cannot contain special characters that could cause SQL injection")
+	errInvalidService                          = errors.New("service name cannot contain special characters")
+	errInvalidQueryMonitoringResponseThreshold = errors.New("query_monitoring_response_time_threshold must be between 1ms and 5000ms")
+	errInvalidQueryMonitoringCountThreshold    = errors.New("query_monitoring_count_threshold must be between 10 and 50")
+	errInvalidChildCursorsPerSQLID             = errors.New("child_cursors_per_sql_id must be between 3 and 20")
+)
+
+// TablespaceFilterConfig defines tablespace filtering options
+type TablespaceFilterConfig struct {
+	IncludeTablespaces []string `mapstructure:"include_tablespaces"`
+	ExcludeTablespaces []string `mapstructure:"exclude_tablespaces"`
+}
+
+type Config struct {
+	DataSource string `mapstructure:"datasource"`
+	Endpoint   string `mapstructure:"endpoint"`
+	Password   string `mapstructure:"password"`
+	Service    string `mapstructure:"service"`
+	Username   string `mapstructure:"username"`
+
+	// Connection Pool Configuration
+	MaxOpenConnections    int  `mapstructure:"max_open_connections"`
+	DisableConnectionPool bool `mapstructure:"disable_connection_pool"`
+
+	// Query Performance Monitoring Configuration
+	EnableQueryMonitoring                bool `mapstructure:"enable_query_monitoring"`
+	QueryMonitoringResponseTimeThreshold int  `mapstructure:"query_monitoring_response_time_threshold"`
+	QueryMonitoringCountThreshold        int  `mapstructure:"query_monitoring_count_threshold"`
+	QueryMonitoringIntervalSeconds       int  `mapstructure:"query_monitoring_interval_seconds"`
+	ChildCursorsPerSQLID                 int  `mapstructure:"child_cursors_per_sql_id"`
+
+	// Interval Calculator Configuration
+	EnableIntervalBasedAveraging      bool `mapstructure:"enable_interval_based_averaging"`
+	IntervalCalculatorCacheTTLMinutes int  `mapstructure:"interval_calculator_cache_ttl_minutes"`
+
+	// Tablespace Filtering Configuration
+	TablespaceFilter TablespaceFilterConfig `mapstructure:"tablespace_filter"`
+
+	scraperhelper.ControllerConfig `mapstructure:",squash"`
+	metadata.MetricsBuilderConfig  `mapstructure:",squash"`
+	metadata.LogsBuilderConfig     `mapstructure:",squash"`
+}
+
+// SetDefaults sets default values for configuration fields that are not explicitly set
+func (c *Config) SetDefaults() {
+	if c.MaxOpenConnections == 0 {
+		c.MaxOpenConnections = defaultMaxOpenConnections
+	}
+
+	// Set scraper controller defaults if not set
+	if c.ControllerConfig.CollectionInterval == 0 {
+		c.ControllerConfig.CollectionInterval = defaultCollectionInterval
+	}
+
+	// Set Query Performance Monitoring defaults if not set
+	if c.QueryMonitoringResponseTimeThreshold < minQueryMonitoringResponseTimeThreshold {
+		c.QueryMonitoringResponseTimeThreshold = defaultQueryMonitoringResponseTimeThreshold
+	}
+	if c.QueryMonitoringCountThreshold == 0 || c.QueryMonitoringCountThreshold < minQueryMonitoringCountThreshold ||
+		c.QueryMonitoringCountThreshold > maxQueryMonitoringCountThreshold {
+		c.QueryMonitoringCountThreshold = defaultQueryMonitoringCountThreshold
+	}
+	if c.ChildCursorsPerSQLID == 0 || c.ChildCursorsPerSQLID < minChildCursorsPerSQLID ||
+		c.ChildCursorsPerSQLID > maxChildCursorsPerSQLID {
+		c.ChildCursorsPerSQLID = defaultChildCursorsPerSQLID
+	}
+
+	// Set QueryMonitoringIntervalSeconds default based on collection_interval
+	// IMPORTANT: This should be >= collection_interval to avoid missing queries between scrapes
+	// Default: Use collection_interval converted to seconds (rounded up)
+	if c.QueryMonitoringIntervalSeconds <= 0 {
+		collectionIntervalSeconds := int(c.ControllerConfig.CollectionInterval.Seconds())
+		if collectionIntervalSeconds < 1 {
+			collectionIntervalSeconds = 10 // Fallback to 10 seconds minimum
+		}
+		c.QueryMonitoringIntervalSeconds = collectionIntervalSeconds
+	} else {
+		// User specified a value - ensure it's at least as long as collection_interval
+		collectionIntervalSeconds := int(c.ControllerConfig.CollectionInterval.Seconds())
+		if c.QueryMonitoringIntervalSeconds < collectionIntervalSeconds {
+			// Log a warning would be nice here, but we don't have logger in config
+			// The value will be adjusted to match collection_interval
+			c.QueryMonitoringIntervalSeconds = collectionIntervalSeconds
+		}
+	}
+
+	// Set Interval Calculator defaults if not set
+	if c.IntervalCalculatorCacheTTLMinutes <= 0 {
+		c.IntervalCalculatorCacheTTLMinutes = defaultIntervalCalculatorCacheTTLMinutes
+	}
+}
+
+func (c Config) Validate() error {
+	var allErrs error
+
+	// If DataSource is defined it takes precedence over the rest of the connection options.
+	if c.DataSource == "" {
+		// Validate endpoint
+		if c.Endpoint == "" {
+			allErrs = multierr.Append(allErrs, errEmptyEndpoint)
+		} else {
+			if err := c.validateEndpoint(); err != nil {
+				allErrs = multierr.Append(allErrs, err)
+			}
+		}
+
+		// Validate username
+		if c.Username == "" {
+			allErrs = multierr.Append(allErrs, errEmptyUsername)
+		} else {
+			if err := c.validateUsername(); err != nil {
+				allErrs = multierr.Append(allErrs, err)
+			}
+		}
+
+		// Validate password
+		if c.Password == "" {
+			allErrs = multierr.Append(allErrs, errEmptyPassword)
+		}
+
+		// Validate service
+		if c.Service == "" {
+			allErrs = multierr.Append(allErrs, errEmptyService)
+		} else {
+			if err := c.validateService(); err != nil {
+				allErrs = multierr.Append(allErrs, err)
+			}
+		}
+	} else {
+		if err := c.validateDataSource(); err != nil {
+			allErrs = multierr.Append(allErrs, err)
+		}
+	}
+
+	// Validate connection pool configuration
+	if err := c.validateConnectionPool(); err != nil {
+		allErrs = multierr.Append(allErrs, err)
+	}
+
+	// Validate scraper controller configuration
+	if err := c.validateScraperConfig(); err != nil {
+		allErrs = multierr.Append(allErrs, err)
+	}
+
+	// Validate Query Performance Monitoring configuration
+	if err := c.validateQueryPerformanceMonitoring(); err != nil {
+		allErrs = multierr.Append(allErrs, err)
+	}
+
+	return allErrs
+}
+
+// validateEndpoint validates the database endpoint format and values
+func (c Config) validateEndpoint() error {
+	host, portStr, err := net.SplitHostPort(c.Endpoint)
+	if err != nil {
+		return fmt.Errorf("%w: %s", errBadEndpoint, err.Error())
+	}
+
+	if host == "" {
+		return errBadEndpoint
+	}
+
+	port, err := strconv.ParseInt(portStr, 10, 32)
+	if err != nil {
+		return fmt.Errorf("%w: %s", errBadPort, err.Error())
+	}
+
+	if port < 1 || port > 65535 {
+		return fmt.Errorf("%w: %d (must be between 1 and 65535)", errBadPort, port)
+	}
+
+	return nil
+}
+
+// validateUsername validates the username for security and length constraints
+func (c Config) validateUsername() error {
+	if len(c.Username) > maxUsernameLength {
+		return fmt.Errorf("%w: length %d exceeds maximum %d", errInvalidUsername, len(c.Username), maxUsernameLength)
+	}
+
+	// Check for potentially dangerous characters that could indicate SQL injection attempts
+	// Note: In character classes, - should be escaped or placed at start/end to avoid range interpretation
+	dangerousChars := regexp.MustCompile(`[';"\\/\*-]`)
+	if dangerousChars.MatchString(c.Username) {
+		return errInvalidUsername
+	}
+
+	return nil
+}
+
+// validateService validates the Oracle service name
+func (c Config) validateService() error {
+	if len(c.Service) > maxServiceLength {
+		return fmt.Errorf("%w: length %d exceeds maximum %d", errInvalidService, len(c.Service), maxServiceLength)
+	}
+
+	// Oracle service names should not contain certain special characters
+	if strings.ContainsAny(c.Service, " \t\n\r;\"'\\") {
+		return errInvalidService
+	}
+
+	return nil
+}
+
+// validateDataSource validates the complete data source URL
+func (c Config) validateDataSource() error {
+	parsedURL, err := url.Parse(c.DataSource)
+	if err != nil {
+		return fmt.Errorf("%w: %s", errBadDataSource, err.Error())
+	}
+
+	// Validate scheme
+	if parsedURL.Scheme != "oracle" {
+		return fmt.Errorf("%w: scheme must be 'oracle', got '%s'", errBadDataSource, parsedURL.Scheme)
+	}
+
+	// Validate host and port are present
+	if parsedURL.Host == "" {
+		return fmt.Errorf("%w: host must be specified", errBadDataSource)
+	}
+
+	return nil
+}
+
+// validateConnectionPool validates connection pool settings
+func (c Config) validateConnectionPool() error {
+	if c.MaxOpenConnections < minMaxOpenConnections || c.MaxOpenConnections > maxMaxOpenConnections {
+		return fmt.Errorf("%w: got %d", errInvalidConnections, c.MaxOpenConnections)
+	}
+
+	return nil
+}
+
+// validateScraperConfig validates scraper controller configuration
+func (c Config) validateScraperConfig() error {
+	if c.ControllerConfig.CollectionInterval < minCollectionInterval || c.ControllerConfig.CollectionInterval > maxCollectionInterval {
+		return fmt.Errorf("%w: got %v", errInvalidTimeout, c.ControllerConfig.CollectionInterval)
+	}
+
+	return nil
+}
+
+// validateQueryPerformanceMonitoring validates Query Performance Monitoring configuration
+// Note: Range validation is handled in SetDefaults() with auto-correction
+func (c Config) validateQueryPerformanceMonitoring() error {
+	// Only validate QPM settings if query monitoring is enabled
+	if !c.EnableQueryMonitoring {
+		return nil
+	}
+
+	var allErrs error
+
+	// Only validate for negative values since SetDefaults() handles range correction
+	if c.QueryMonitoringResponseTimeThreshold < 0 {
+		allErrs = multierr.Append(allErrs, fmt.Errorf("query_monitoring_response_time_threshold cannot be negative: got %d", c.QueryMonitoringResponseTimeThreshold))
+	}
+
+	if c.QueryMonitoringCountThreshold < 0 {
+		allErrs = multierr.Append(allErrs, fmt.Errorf("query_monitoring_count_threshold cannot be negative: got %d", c.QueryMonitoringCountThreshold))
+	}
+
+	if c.QueryMonitoringIntervalSeconds < 0 {
+		allErrs = multierr.Append(allErrs, fmt.Errorf("query_monitoring_interval_seconds cannot be negative: got %d", c.QueryMonitoringIntervalSeconds))
+	}
+
+	if c.ChildCursorsPerSQLID < 0 {
+		allErrs = multierr.Append(allErrs, fmt.Errorf("child_cursors_per_sql_id cannot be negative: got %d", c.ChildCursorsPerSQLID))
+	}
+
+	// Note: We don't validate that interval_seconds >= collection_interval here because
+	// SetDefaults() already auto-corrects this at lines 126-140. The validation would fail
+	// because Validate() uses a value receiver and sees the uncorrected value.
+
+	return allErrs
+}
